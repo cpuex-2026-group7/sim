@@ -18,6 +18,7 @@ class Reg {
 
         // x
         uint32_t read_x(int index);
+        int32_t read_x_signed(int index);
         void write_x(int index, uint32_t value);
 
         // f
@@ -27,5 +28,9 @@ class Reg {
         // pc
         uint32_t read_pc();
         void write_pc(uint32_t value);
+        void write_pc_relative(int32_t offset);
         void incr_pc();
+
+        // util
+        void dump();
 };  
