@@ -58,9 +58,9 @@ void Core::run(){ // main run loop
         // trace
         if (trace){
             if (!res) fprintf(trace, "halt pc=%08x\n", pc);
-            else if (reg.trace.valid) fprintf(trace, "pc=%08x ins=%08x %s%02d=%08x  # c=%lu\n", pc, raw, reg.trace.is_f ? "f" : "x", reg.trace.num, reg.trace.value, cycle);
-            else if (mem.trace.valid) fprintf(trace, "pc=%08x ins=%08x M[%08x]=%08x  # c=%lu\n", pc, raw, mem.trace.addr, mem.trace.value, cycle);
-            else fprintf(trace, "pc=%08x ins=%08x  # c=%lu\n", pc, raw, cycle);
+            else if (reg.trace.valid) fprintf(trace, "pc=%08x ins=%08x %s%02d=%08x  # c=%llu\n", pc, raw, reg.trace.is_f ? "f" : "x", reg.trace.num, reg.trace.value, (unsigned long long)cycle);
+            else if (mem.trace.valid) fprintf(trace, "pc=%08x ins=%08x M[%08x]=%08x  # c=%llu\n", pc, raw, mem.trace.addr, mem.trace.value, (unsigned long long)cycle);
+            else fprintf(trace, "pc=%08x ins=%08x  # c=%llu\n", pc, raw, (unsigned long long)cycle);
             reg.trace.valid = mem.trace.valid = false;
         }
         cycle++;
