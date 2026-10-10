@@ -10,6 +10,7 @@ int32_t Reg::read_x_signed(int index){
     return static_cast<int32_t>(x[index]);
 }
 void Reg::write_x(int index, uint32_t value){
+    trace = {true, false, index, value};
     x[index] = index ? value : 0x0;
 }
 
@@ -18,6 +19,7 @@ uint32_t Reg::read_f(int index){
     return f[index];
 }
 void Reg::write_f(int index, uint32_t value){
+    trace = {true, true, index, value};
     f[index] = index ? value : to_uint32(0.0f);
 }
 

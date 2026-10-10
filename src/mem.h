@@ -2,6 +2,12 @@
 
 #include <vector>
 
+struct MemRWTrace {
+    bool valid = false;
+    uint32_t addr;
+    uint32_t value;
+};
+
 class Mem {
     public:
         // const
@@ -9,6 +15,7 @@ class Mem {
 
         // mem (word aligned)
         std::vector<uint32_t> mem; // NOTE: 全体のメモリ確保が必要だが、アクセスが早い cf. map
+        MemRWTrace trace;
 
         // init
         Mem() : mem(mem_size, 0x0) {}

@@ -2,6 +2,13 @@
 
 #include <vector>
 
+struct RegRWTrace {
+    bool valid = false;
+    bool is_f;
+    int num;
+    uint32_t value;
+};
+
 class Reg {
     public:
         // const
@@ -12,6 +19,7 @@ class Reg {
         std::vector<uint32_t> x;
         std::vector<uint32_t> f;
         uint32_t pc;
+        RegRWTrace trace;
 
         // init
         Reg() : x(x_size, 0x0), f(f_size, 0x0), pc(0x0) {}

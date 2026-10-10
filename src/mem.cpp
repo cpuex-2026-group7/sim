@@ -13,5 +13,6 @@ void Mem::write(uint32_t addr, uint32_t value) {
          fprintf(stderr, "Memory write out of range: %u\n", addr);
         exit(1);
     }
+    trace = {true, addr, value};
     mem[addr] = value;
 }
