@@ -35,7 +35,7 @@ void Core::load_exec(std::string &path) {
     if (size > Mem::mem_size * 4){ fprintf(stderr, "Binary is too large\n"); exit(1); }
     fread(mem.mem.data(), 1, size, fp);
     fclose(fp);
-    
+
     // convert to big endian if necessary
     if constexpr (std::endian::native == std::endian::little){
         for (size_t i = 0; i < size / 4; i++){
@@ -58,9 +58,9 @@ void Core::run(){ // main run loop
         // trace
         if (trace){
             if (!res) fprintf(trace, "halt pc=%08x\n", pc);
-            else if (reg.trace.valid) fprintf(trace, "pc=%08x ins=%08x %s%02d=%08x  # c=%llu\n", pc, raw, reg.trace.is_f ? "f" : "x", reg.trace.num, reg.trace.value, cycle);
-            else if (mem.trace.valid) fprintf(trace, "pc=%08x ins=%08x M[%08x]=%08x  # c=%llu\n", pc, raw, mem.trace.addr, mem.trace.value, cycle);
-            else fprintf(trace, "pc=%08x ins=%08x  # c=%llu\n", pc, raw, cycle);
+            else if (reg.trace.valid) fprintf(trace, "pc=%08x ins=%08x %s%02d=%08x  # c=%lu\n", pc, raw, reg.trace.is_f ? "f" : "x", reg.trace.num, reg.trace.value, cycle);
+            else if (mem.trace.valid) fprintf(trace, "pc=%08x ins=%08x M[%08x]=%08x  # c=%lu\n", pc, raw, mem.trace.addr, mem.trace.value, cycle);
+            else fprintf(trace, "pc=%08x ins=%08x  # c=%lu\n", pc, raw, cycle);
             reg.trace.valid = mem.trace.valid = false;
         }
         cycle++;

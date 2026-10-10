@@ -1,6 +1,6 @@
 #include "reg.h"
 #include "util.h"
-
+#include <cstdio>
 
 // x
 uint32_t Reg::read_x(int index){

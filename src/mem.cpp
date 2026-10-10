@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <cstdio>
 #include "mem.h"
 
 uint32_t Mem::read(uint32_t addr) {

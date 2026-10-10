@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 struct RegRWTrace {
@@ -41,4 +42,4 @@ class Reg {
 
         // util
         void dump();
-};  
+};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cstdint>
 
 struct MemRWTrace {
     bool valid = false;
@@ -23,4 +24,4 @@ class Mem {
         // access
         uint32_t read(uint32_t addr);
         void write(uint32_t addr, uint32_t value);
-};  
+};
