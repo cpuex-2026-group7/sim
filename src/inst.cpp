@@ -56,9 +56,8 @@ bool Inst::exec(Reg &reg, Mem &mem){
                     switch (imm_type){
                         case IMM_A:
                             switch (op_id){
-                                case 0: // halt
-                                    /* stop */
-                                    return false;
+                                case 0: // nop
+                                    /* nop */
                                     break;
                             }
                             break;
@@ -282,9 +281,25 @@ bool Inst::exec(Reg &reg, Mem &mem){
                     }
                     break;
                 case EFF_MEM:
-                    switch (op_id){
-                        case 0:
+                    switch (imm_type){
+                        case IMM_A:
                             break;
+                        case IMM_B:
+                            break;
+                        case IMM_C:
+                            break;
+                        case IMM_D:
+                            switch (op_id){
+                                case 0:
+                                    break;
+                                case 1:
+                                    break;
+                                case 2:
+                                    break;
+                                case 3: // halt
+                                    /* stop */
+                                    return false;
+                            }
                     }
                     break;
             }
