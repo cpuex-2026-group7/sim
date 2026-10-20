@@ -1,5 +1,17 @@
 import os
 
+# === NOTE ===
+# check x31 for pass(1) or fail(0)
+# combination:
+#   write : alu / lw / jal / jalr
+#   read  : add / addi / beq / sw / lw / jalr
+# structure:
+#   x5 = old value // fail
+#   x5 = (op) // write
+#   nop * distance // 0~3 
+#   (op x5) // read
+#   if x5 != expeced: jump to fail
+
 MAGIC = 0x1234
 NOP3 = ["nop", "nop", "nop"]
 
