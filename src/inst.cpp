@@ -200,7 +200,7 @@ bool Inst::exec(Reg &reg, Mem &mem){
                             break;
                         case IMM_C:
                             switch (op_id){
-                                case 0: // fcvt.w.s rd, rs1(f)
+                                case 0: // ftoi  rd, rs1(f)
                                     /* rd = int(rs1(f)) */ // NOTE: 四捨五入
                                     reg.write_x(rd, (uint32_t)(int32_t)std::lround(to_float(reg.read_f(rs1))));
                                     break;
@@ -208,11 +208,11 @@ bool Inst::exec(Reg &reg, Mem &mem){
                             break;
                         case IMM_D:
                             switch (op_id){
-                                case 0: // feq.s rd, rs1(f), rs2(f)
+                                case 0: // feq rd, rs1(f), rs2(f)
                                     /* rd = (rs1(f) == rs2(f)) */
                                     reg.write_x(rd, to_float(reg.read_f(rs1)) == to_float(reg.read_f(rs2)));
                                     break;
-                                case 1: // flt.s rd, rs1(f), rs2(f)
+                                case 1: // flt rd, rs1(f), rs2(f)
                                     /* rd = (rs1(f) < rs2(f)) */
                                     reg.write_x(rd, to_float(reg.read_f(rs1)) < to_float(reg.read_f(rs2)));
                                     break;
@@ -224,7 +224,7 @@ bool Inst::exec(Reg &reg, Mem &mem){
                     switch (imm_type){
                         case IMM_A:
                             switch (op_id){
-                                case 0: // fli.s rd(f), imm(f[31:12])
+                                case 0: // fli rd(f), imm(f[31:12])
                                     /* rd(f) =  imm | 12'b0' */ 
                                     reg.write_f(rd, imm);
                                     break;
@@ -232,7 +232,7 @@ bool Inst::exec(Reg &reg, Mem &mem){
                             break;
                         case IMM_B:
                             switch (op_id){
-                                case 0: // flim.s rd(f), imm
+                                case 0: // flhi rd(f), imm
                                     // TOOD: 小数をハードコードして、番号に対応するものを取得
                                     reg.write_f(rd, to_uint32(0.0f));
                                     break;
@@ -240,19 +240,19 @@ bool Inst::exec(Reg &reg, Mem &mem){
                             break;
                         case IMM_C:
                             switch (op_id){
-                                case 0: // fcvt.s.w rd(f), rs1
+                                case 0: // itof rd(f), rs1
                                     /* rd(f) = float(rs1) */
                                     reg.write_f(rd, to_uint32((float)(int32_t)reg.read_x(rs1)));
                                     break;
-                                case 1: // fsqrt.s dr(f), rs1(f)
+                                case 1: // fmv rd(f), rs1(f)
+                                    /* rd(f) = rs1(f) */
+                                    reg.write_f(rd, reg.read_f(rs1));
+                                    break;
+                                case 2: // fsqrt rd(f), rs1(f)
                                     /* rd(f) = sqrt(rs1(f)) */
                                     reg.write_f(rd, to_uint32(std::sqrt(to_float(reg.read_f(rs1)))));
                                     break;
-                                case 2: // fneg.s rd(f), rs1(f)
-                                    /* rd(f) = -rs1(f) */
-                                    reg.write_f(rd, to_uint32(-to_float(reg.read_f(rs1))));
-                                    break;
-                                case 3: // fabs.s rd(f), rs1(f)
+                                case 3: // fabs rd(f), rs1(f)
                                     /* rd(f) = abs(rs1(f)) */
                                     reg.write_f(rd, to_uint32(std::fabs(to_float(reg.read_f(rs1)))));
                                     break;
@@ -260,19 +260,19 @@ bool Inst::exec(Reg &reg, Mem &mem){
                             break;
                         case IMM_D:
                             switch (op_id){
-                                case 0: // f.add.s rd(f), rs1(f), rs2(f)
+                                case 0: // fadd rd(f), rs1(f), rs2(f)
                                     /* rd(f) = rs1(f) + rs2(f) */
                                     reg.write_f(rd, to_uint32(to_float(reg.read_f(rs1)) + to_float(reg.read_f(rs2))));
                                     break;
-                                case 1: // f.sub.s rd(f), rs1(f), rs2(f)
+                                case 1: // fsub rd(f), rs1(f), rs2(f)
                                     /* rd(f) = rs1(f) - rs2(f) */
                                     reg.write_f(rd, to_uint32(to_float(reg.read_f(rs1)) - to_float(reg.read_f(rs2))));
                                     break;
-                                case 2: // f.mul.s rd(f), rs1(f), rs2(f)
+                                case 2: // fmul rd(f), rs1(f), rs2(f)
                                     /* rd(f) = rs1(f) * rs2(f) */
                                     reg.write_f(rd, to_uint32(to_float(reg.read_f(rs1)) * to_float(reg.read_f(rs2))));
                                     break;
-                                case 3: // f.div.s rd(f), rs1(f), rs2(f)
+                                case 3: // fdiv rd(f), rs1(f), rs2(f)
                                     /* rd(f) = rs1(f) / rs2(f) */
                                     reg.write_f(rd, to_uint32(to_float(reg.read_f(rs1)) / to_float(reg.read_f(rs2))));
                                     break;  
