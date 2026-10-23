@@ -9,9 +9,8 @@
 using namespace std;
 
 // init
-Core::Core (std::string &path, std::string &trace_path) {
+Core::Core (std::string &trace_path, std::string &in_path, std::string &out_path): reg(), mem(in_path, out_path) {
     init_trace(trace_path);
-    load_exec(path);
 }
 
 // main
@@ -32,14 +31,14 @@ void Core::load_exec(std::string &path) {
     // load it to memory
     // NOTE: no header, big endian
     auto size = filesystem::file_size(path);
-    if (size > Mem::mem_size * 4){ fprintf(stderr, "Binary is too large\n"); exit(1); }
-    fread(mem.mem.data(), 1, size, fp);
+    if (size > Mem::imem_size * 4){ fprintf(stderr, "Binary is too large\n"); exit(1); }
+    fread(mem.imem.data(), 1, size, fp);
     fclose(fp);
 
     // convert to big endian if necessary
     if constexpr (std::endian::native == std::endian::little){
         for (size_t i = 0; i < size / 4; i++){
-            mem.mem[i] = std::byteswap(mem.mem[i]);
+            mem.imem[i] = std::byteswap(mem.imem[i]);
         }
     }
 }
@@ -49,8 +48,8 @@ void Core::run(){ // main run loop
     while(true){
         // fetch inst
         uint32_t pc = reg.read_pc();
-        if (pc >= Mem::mem_size){ fprintf(stderr, "pc is out of range: %u\n", pc); exit(1); }
-        uint32_t raw = mem.read(pc);
+        if (pc >= Mem::imem_size){ fprintf(stderr, "pc is out of range: %u\n", pc); exit(1); }
+        uint32_t raw = mem.read_inst(pc);
         // decode
         Inst inst = Inst(raw);
         // execute
@@ -75,4 +74,21 @@ void Core::run(){ // main run loop
     // dump
     if (trace) fclose(trace);
     reg.dump();
+}
+
+void Core::boot(){
+    // simulate bootloader procedure
+    // send 0x99
+    mem.uart_send(0x99);
+    // recv prog size
+    uint32_t n = mem.uart_recv_word();
+    if (n % 4 != 0){ fprintf(stderr, "Invalid program size: %u\n", n);exit(1);}
+    if (n / 4 > Mem::imem_size){ fprintf(stderr, "Received program size is too large: %u\n", n);exit(1);}
+    // recv prog data
+    for (uint32_t i = 0; i < n / 4; i++){
+        uint32_t word = mem.uart_recv_word();
+        mem.imem[i] = word;
+    }
+    // send 0xaa
+    mem.uart_send(0xaa);
 }

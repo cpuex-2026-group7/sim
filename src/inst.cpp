@@ -129,7 +129,7 @@ bool Inst::exec(Reg &reg, Mem &mem){
                                     break;
                                 case 2: // lw rd, rs1, imm
                                     /* rd = mem[rs1+imm] */
-                                    reg.write_x(rd, mem.read(reg.read_x(rs1) + imm));
+                                    reg.write_x(rd, mem.read_data(reg.read_x(rs1) + imm));
                                     break;
                             }
                             break;
@@ -157,7 +157,7 @@ bool Inst::exec(Reg &reg, Mem &mem){
                             switch (op_id){
                                 case 0: // flw rd, rs1, imm
                                     /* rd(f) = mem[rs1+imm] */
-                                    reg.write_f(rd, mem.read(reg.read_x(rs1) + imm));
+                                    reg.write_f(rd, mem.read_data(reg.read_x(rs1) + imm));
                                     break;
                             }
                             break;
@@ -177,11 +177,11 @@ bool Inst::exec(Reg &reg, Mem &mem){
                             switch (op_id){
                                 case 0: // sw rs1, rs2, imm
                                     /* mem[rs1+imm] = rs2 */
-                                    mem.write(reg.read_x(rs1) + imm, reg.read_x(rs2));
+                                    mem.write_data(reg.read_x(rs1) + imm, reg.read_x(rs2));
                                     break;
                                 case 1: // fsw rs1, rs2, imm
                                     /* mem[rs1+imm] = rs2(f) */
-                                    mem.write(reg.read_x(rs1) + imm, reg.read_f(rs2));
+                                    mem.write_data(reg.read_x(rs1) + imm, reg.read_f(rs2));
                             }
                             break;
                     }

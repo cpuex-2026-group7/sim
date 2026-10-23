@@ -39,16 +39,16 @@ void Reg::incr_pc(){
 
 // util
 void Reg::dump(){
-    printf("=== Reg Dump ===\n");
-    printf("pc = %u\n", pc);
-    printf("=== x regs ===\n");
+    fprintf(stderr, "=== Reg Dump ===\n");
+    fprintf(stderr, "pc = %u\n", pc);
+    fprintf(stderr, "=== x regs ===\n");
     for (int i = 0; i < x_size; i++){
-        printf("x[%02d] = 0x%08x %12d | ", i, x[i], (int32_t)x[i]);
-        if (i % 4 == 3) printf("\n");
+        fprintf(stderr, "x[%02d] = 0x%08x %12d | ", i, x[i], (int32_t)x[i]);
+        if (i % 4 == 3) fprintf(stderr, "\n");
     }
-    printf("=== f regs ===\n");
+    fprintf(stderr, "=== f regs ===\n");
     for (int i = 0; i < f_size; i++){
-        printf("f[%02d] = 0x%08x %12g | ", i, f[i], to_float(f[i]));
-        if (i % 4 == 3) printf("\n");
+        fprintf(stderr, "f[%02d] = 0x%08x %12g | ", i, f[i], to_float(f[i]));
+        if (i % 4 == 3) fprintf(stderr, "\n");
     }
 }
