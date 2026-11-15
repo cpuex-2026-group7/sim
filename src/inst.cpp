@@ -46,6 +46,16 @@ void Inst::decode(){
     }
 }
 
+BranchPredictor::Type Inst::branch_type() const {
+    using T = BranchPredictor::Type;
+    if (eff_type == EFF_NONE && imm_type == IMM_D) return T::Branch;
+    if (unit_type == UNIT_ALU && eff_type == EFF_WI && op_id == 0){
+        if (imm_type == IMM_B) return T::Jal;
+        if (imm_type == IMM_C) return T::Jalr;
+    }
+    return T::None;
+}
+
 bool Inst::exec(Reg &reg, Mem &mem){
     // execute instrutions
     bool jumped = false;

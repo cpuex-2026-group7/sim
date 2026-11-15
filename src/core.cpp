@@ -5,6 +5,7 @@
 
 #include "core.h"
 #include "inst.h"
+#include "const.h"
 
 using namespace std;
 
@@ -54,6 +55,7 @@ void Core::run(){ // main run loop
         Inst inst = Inst(raw);
         // execute
         bool res = inst.exec(reg, mem);
+        if (res) bp.step(pc, inst.branch_type(), inst.static_target(pc), reg.read_pc());
         // trace
         if (trace){
             if (!res) fprintf(trace, "halt\n");
@@ -75,6 +77,7 @@ void Core::run(){ // main run loop
     if (trace) fclose(trace);
     reg.dump();
     if (cache_stats) mem.dcache.print_stats(stderr);
+    if (branch_stats) bp.print_stats(stderr);
 }
 
 void Core::boot(){

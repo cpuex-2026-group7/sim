@@ -2,6 +2,7 @@
 
 #include "reg.h"
 #include "mem.h"
+#include "branch.h"
 
 class Inst {
     public:
@@ -25,4 +26,8 @@ class Inst {
         // main
         void decode();
         bool exec(Reg &reg, Mem &mem);
+
+        // branch info
+        BranchPredictor::Type branch_type() const;
+        uint32_t static_target(uint32_t pc) const { return pc + imm; }  // for Branch/Jal
 };

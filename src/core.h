@@ -3,6 +3,7 @@
 #include <string>
 #include "reg.h"
 #include "mem.h"
+#include "branch.h"
 
 class Core {
     public:
@@ -11,6 +12,8 @@ class Core {
         Mem mem;
         FILE* trace;
         bool cache_stats = false;
+        bool branch_stats = false;
+        BranchPredictor bp;
 
         // init
         Core(std::string &trace_path, std::string &in_path, std::string &out_path);
