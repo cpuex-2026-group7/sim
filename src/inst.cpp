@@ -131,6 +131,15 @@ bool Inst::exec(Reg &reg, Mem &mem){
                                     /* rd = mem[rs1+imm] */
                                     reg.write_x(rd, mem.read_data(reg.read_x(rs1) + imm));
                                     break;
+                                case 3: { // sra rd, rs1, shift
+                                    /* rd = rs1 >>a shift (下位6bit符号付き, 負なら左シフト) */
+                                    int32_t sh = (int32_t)(imm & 0x3F);
+                                    if (sh >= 32) sh -= 64;
+                                    int32_t v = (int32_t)reg.read_x(rs1);
+                                    if (sh >= 0) reg.write_x(rd, (uint32_t)(v >> sh));
+                                    else reg.write_x(rd, sh == -32 ? 0u : (uint32_t)v << (-sh));
+                                    break;
+                                }
                             }
                             break;
                         case IMM_D:
@@ -191,6 +200,46 @@ bool Inst::exec(Reg &reg, Mem &mem){
         case UNIT_FPU: // TODO: emulate hardware FPU eventually
             switch (eff_type){
                 case EFF_NONE:
+                    switch (imm_type){
+                        case IMM_A:
+                            break;
+                        case IMM_B:
+                            break;
+                        case IMM_C:
+                            break;
+                        case IMM_D:
+                            switch (op_id){
+                                case 0: // fbeq rs1(f), rs2(f), imm
+                                    /* if rs1(f) == rs2(f), jump to imm */
+                                    if (to_float(reg.read_f(rs1)) == to_float(reg.read_f(rs2))){
+                                        reg.write_pc_relative(imm);
+                                        jumped = true;
+                                    }
+                                    break;
+                                case 1: // fbne rs1(f), rs2(f), imm
+                                    /* if rs1(f) != rs2(f), jump to imm */
+                                    if (to_float(reg.read_f(rs1)) != to_float(reg.read_f(rs2))){
+                                        reg.write_pc_relative(imm);
+                                        jumped = true;
+                                    }
+                                    break;
+                                case 2: // fblt rs1(f), rs2(f), imm
+                                    /* if rs1(f) < rs2(f), jump to imm */
+                                    if (to_float(reg.read_f(rs1)) < to_float(reg.read_f(rs2))){
+                                        reg.write_pc_relative(imm);
+                                        jumped = true;
+                                    }
+                                    break;
+                                case 3: // fbge rs1(f), rs2(f), imm
+                                    /* if rs1(f) >= rs2(f), jump to imm */
+                                    if (to_float(reg.read_f(rs1)) >= to_float(reg.read_f(rs2))){
+                                        reg.write_pc_relative(imm);
+                                        jumped = true;
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
                     break;
                 case EFF_WI:
                     switch (imm_type){
@@ -244,10 +293,13 @@ bool Inst::exec(Reg &reg, Mem &mem){
                                     /* rd(f) = float(rs1) */
                                     reg.write_f(rd, to_uint32((float)(int32_t)reg.read_x(rs1)));
                                     break;
-                                case 1: // fmv rd(f), rs1(f)
-                                    /* rd(f) = rs1(f) */
-                                    reg.write_f(rd, reg.read_f(rs1));
+                                case 1: { // fcsign rd(f), rs1(f), flag (fmv = flag 0)
+                                    /* rd(f) = {sign, rs1(f)[30:0]}, sign = (rs1.sign & ~flag[1]) ^ flag[0] */
+                                    uint32_t v = reg.read_f(rs1);
+                                    uint32_t sign = (((v >> 31) & ~(imm >> 1)) ^ imm) & 1;
+                                    reg.write_f(rd, (sign << 31) | (v & 0x7FFFFFFFu));
                                     break;
+                                }
                                 case 2: // fsqrt rd(f), rs1(f)
                                     /* rd(f) = sqrt(rs1(f)) */
                                     reg.write_f(rd, to_uint32(std::sqrt(to_float(reg.read_f(rs1)))));
