@@ -10,6 +10,7 @@ class Core {
         Reg reg;
         Mem mem;
         FILE* trace;
+        bool cache_stats = false;
 
         // init
         Core(std::string &trace_path, std::string &in_path, std::string &out_path);

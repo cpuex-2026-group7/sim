@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <cstdio>
+#include "dcache.h"
 
 struct MemRWTrace {
     bool valid = false;
@@ -27,6 +28,7 @@ class Mem {
         std::vector<uint32_t> imem; // NOTE: 全体のメモリ確保が必要だが、アクセスが早い cf. map
         std::vector<uint32_t> dmem; 
         MemRWTrace trace;
+        DCache dcache;
 
         // init
         Mem(std::string &in_path, std::string &out_path);

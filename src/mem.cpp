@@ -23,6 +23,7 @@ uint32_t Mem::read_data(uint32_t addr) {
         fprintf(stderr, "Data memory read out of range: %u\n", addr);
         exit(1);
     } 
+    dcache.access(addr, false);
     return dmem[addr];
 }
 
@@ -37,6 +38,7 @@ void Mem::write_data(uint32_t addr, uint32_t value) {
         fprintf(stderr, "Data memory write out of range: %u\n", addr);
         exit(1);
     } 
+    dcache.access(addr, true);
     dmem[addr] = value;
 }
 

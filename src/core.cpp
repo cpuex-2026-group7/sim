@@ -74,6 +74,7 @@ void Core::run(){ // main run loop
     // dump
     if (trace) fclose(trace);
     reg.dump();
+    if (cache_stats) mem.dcache.print_stats(stderr);
 }
 
 void Core::boot(){
