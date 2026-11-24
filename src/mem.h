@@ -17,8 +17,7 @@ class Mem {
         // const
         static constexpr int imem_size = 1024 * 1024 / 4; // word
         static constexpr int dmem_size = 1024 * 1024 / 4; // word
-        static constexpr uint32_t uart_rx = 0xffffffff;
-        static constexpr uint32_t uart_tx = 0xfffffffe;
+        static constexpr uint32_t uart_tx = 0xffffffff;
 
         // i/o
         FILE* uart_in = stdin;
@@ -31,7 +30,7 @@ class Mem {
         DCache dcache;
 
         // init
-        Mem(std::string &in_path, std::string &out_path);
+        Mem(std::string &in_path, std::string &out_path, DCache::Config cc = {});
 
         // access
         uint32_t read_data(uint32_t addr);
@@ -42,4 +41,5 @@ class Mem {
         // uart
         void uart_send(uint32_t value);
         uint32_t uart_recv_word();
+        void load_data_from_input();
 };

@@ -12,6 +12,9 @@ int main(int argc, char *argv[]){
         {"out", required_argument, nullptr, 'o'},
         {"boot", no_argument, nullptr, 'b'},
         {"cache-stats", no_argument, nullptr, 'c'},
+        {"cache-ways", required_argument, nullptr, 'w'},
+        {"cache-sets", required_argument, nullptr, 's'},
+        {"cache-line", required_argument, nullptr, 'l'},
         {"branch-stats", no_argument, nullptr, 'p'},
         {nullptr, 0, nullptr, 0}
     };
@@ -23,8 +26,9 @@ int main(int argc, char *argv[]){
     bool boot = false;
     bool cache_stats = false;
     bool branch_stats = false;
+    DCache::Config cc;
     int opt;
-    while ((opt = getopt_long(argc, argv,"t:i:o:bcp", opts, nullptr)) != -1) {
+    while ((opt = getopt_long(argc, argv,"t:i:o:bcpw:s:l:", opts, nullptr)) != -1) {
         switch (opt) {
             case 't': trace_path = optarg; break;
             case 'i': in_path = optarg; break;
@@ -32,19 +36,23 @@ int main(int argc, char *argv[]){
             case 'b': boot = true; break;
             case 'c': cache_stats = true; break;
             case 'p': branch_stats = true; break;
-            default: fprintf(stderr, "Usage: %s <path_to_binary> [--trace <path>] [--in <path>] [--out <path>] [--boot] [--cache-stats] [--branch-stats]\n", argv[0]); return 1;
+            case 'w': cc.ways = strtoul(optarg, nullptr, 0); break;
+            case 's': cc.sets = strtoul(optarg, nullptr, 0); break;
+            case 'l': cc.line_words = strtoul(optarg, nullptr, 0); break;
+            default: fprintf(stderr, "Usage: %s <path_to_binary> [--trace <path>] [--in <path>] [--out <path>] [--boot] [--cache-stats] [--branch-stats] [--cache-ways N] [--cache-sets N] [--cache-line WORDS]\n", argv[0]); return 1;
         }
     }
     int n_args = argc - optind;
-    if (n_args != (boot ? 0 : 1)){ fprintf(stderr, "Usage: %s <path_to_binary> [--trace <path>] [--in <path>] [--out <path>] [--boot] [--cache-stats] [--branch-stats]\n", argv[0]); return 1; }
+    if (n_args != (boot ? 0 : 1)){ fprintf(stderr, "Usage: %s <path_to_binary> [--trace <path>] [--in <path>] [--out <path>] [--boot] [--cache-stats] [--branch-stats] [--cache-ways N] [--cache-sets N] [--cache-line WORDS]\n", argv[0]); return 1; }
     string path = boot ? "" : argv[optind];
 
     // start
-    Core core = Core(trace_path, in_path, out_path);
+    Core core = Core(trace_path, in_path, out_path, cc);
     if (boot){
         core.boot();
     } else {
         core.load_exec(path);
+        core.load_input();
     }
     core.cache_stats = cache_stats;
     core.branch_stats = branch_stats;

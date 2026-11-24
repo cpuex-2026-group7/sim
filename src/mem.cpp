@@ -2,10 +2,10 @@
 #include <cstdio>
 #include "mem.h"
 
-Mem::Mem(std::string &in_path, std::string &out_path) : imem(imem_size, 0x0), dmem(dmem_size, 0x0) {
+Mem::Mem(std::string &in_path, std::string &out_path, DCache::Config cc) : imem(imem_size, 0x0), dmem(dmem_size, 0x0), dcache(cc) {
     if (!in_path.empty()){
-        uart_in = fopen(in_path.c_str(), "r");
-        if (!uart_in){ fprintf(stderr, "Failed to open the uart input file\n"); exit(1); }
+        uart_in = fopen(in_path.c_str(), "rb");
+        if (!uart_in){ fprintf(stderr, "Failed to open the input file\n"); exit(1); }
     }
     if (!out_path.empty()){
         uart_out = fopen(out_path.c_str(), "w");
@@ -14,9 +14,7 @@ Mem::Mem(std::string &in_path, std::string &out_path) : imem(imem_size, 0x0), dm
 }
 
 uint32_t Mem::read_data(uint32_t addr) {
-    if (addr == uart_rx) {
-        return uart_recv_word();
-    } else if (addr == uart_tx) {
+    if (addr == uart_tx) {
         fprintf(stderr, "Data memory read from uart_tx: %u\n", addr);
         exit(1);
     } else if (addr >= dmem_size) {
@@ -31,9 +29,6 @@ void Mem::write_data(uint32_t addr, uint32_t value) {
     trace = {true, addr, value};
     if (addr == uart_tx) {
         return uart_send(value);
-    } else if (addr == uart_rx) {
-        fprintf(stderr, "Data memory write to uart_rx: %u\n", addr);
-        exit(1);
     } else if (addr >= dmem_size) {
         fprintf(stderr, "Data memory write out of range: %u\n", addr);
         exit(1);
@@ -64,6 +59,7 @@ void Mem::uart_send(uint32_t value){
     fflush(uart_out);
 }
 
+// NOTE: little endian (server.py default)
 uint32_t Mem::uart_recv_word(){
     uint32_t value = 0;
     for (int i = 0; i < 4; i++){
@@ -72,7 +68,18 @@ uint32_t Mem::uart_recv_word(){
             fprintf(stderr, "UART input EOF\n");
             exit(1);
         }
-        value = (value << 8) | (c & 0xff);
+        value |= (uint32_t)(c & 0xff) << (8 * i);
     }
     return value;
+}
+
+// read the rest of the input until EOF
+void Mem::load_data_from_input(){
+    size_t i = 0;
+    int c;
+    while ((c = fgetc(uart_in)) != EOF){
+        if (i >= (size_t)dmem_size * 4){ fprintf(stderr, "Input is too large for data memory\n"); exit(1); }
+        dmem[i / 4] |= (uint32_t)(c & 0xff) << (8 * (i % 4));
+        i++;
+    }
 }

@@ -10,7 +10,7 @@
 using namespace std;
 
 // init
-Core::Core (std::string &trace_path, std::string &in_path, std::string &out_path): reg(), mem(in_path, out_path) {
+Core::Core (std::string &trace_path, std::string &in_path, std::string &out_path, DCache::Config cc): reg(), mem(in_path, out_path, cc) {
     init_trace(trace_path);
 }
 
@@ -84,15 +84,27 @@ void Core::boot(){
     // simulate bootloader procedure
     // send 0x99
     mem.uart_send(0x99);
-    // recv prog size
+    // recv prog size (little endian)
     uint32_t n = mem.uart_recv_word();
     if (n % 4 != 0){ fprintf(stderr, "Invalid program size: %u\n", n);exit(1);}
     if (n / 4 > Mem::imem_size){ fprintf(stderr, "Received program size is too large: %u\n", n);exit(1);}
-    // recv prog data
+    // recv prog data (raw binary, big endian) <- same as asm
     for (uint32_t i = 0; i < n / 4; i++){
-        uint32_t word = mem.uart_recv_word();
+        uint32_t word = 0;
+        for (int j = 0; j < 4; j++){
+            int c = fgetc(mem.uart_in);
+            if (c == EOF){ fprintf(stderr, "UART input EOF\n"); exit(1); }
+            word = (word << 8) | (c & 0xff);
+        }
         mem.imem[i] = word;
     }
     // send 0xaa
     mem.uart_send(0xaa);
+    // recv sld data (little endian)
+    mem.load_data_from_input();
+}
+
+// place the input file
+void Core::load_input(){
+    if (mem.uart_in != stdin) mem.load_data_from_input();
 }

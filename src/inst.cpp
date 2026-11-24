@@ -292,8 +292,13 @@ bool Inst::exec(Reg &reg, Mem &mem){
                         case IMM_B:
                             switch (op_id){
                                 case 0: // flhi rd(f), imm
-                                    // TOOD: 小数をハードコードして、番号に対応するものを取得
-                                    reg.write_f(rd, to_uint32(0.0f));
+                                    /* rd(f) = table[imm[4:0]] (same as flhi.sv) */
+                                    static const uint32_t flhi_table[14] = {
+                                        0xbe4ccccd, 0xbdcccccd, 0x38d1b717, 0x3c23d70a, 0x3c8efa35, 0x3d4ccccd, 0x3dcccccd,
+                                        0x3e19999a, 0x3e4ccccd, 0x3e99999a, 0x3f666666, 0x40490fdb, 0x4cbebc20, 0x4e6e6b28
+                                    };
+                                    uint32_t k = imm & 0x1f;
+                                    reg.write_f(rd, k < 14 ? flhi_table[k] : 0);
                                     break;
                             }
                             break;
