@@ -55,6 +55,7 @@ void Core::run(){ // main run loop
         Inst inst = Inst(raw);
         // execute
         bool res = inst.exec(reg, mem);
+        if (inst_stats) ist.step(inst.uop());
         if (res) bp.step(pc, inst.branch_type(), inst.static_target(pc), reg.read_pc());
         // trace
         if (trace){
@@ -78,6 +79,7 @@ void Core::run(){ // main run loop
     reg.dump();
     if (cache_stats) mem.dcache.print_stats(stderr);
     if (branch_stats) bp.print_stats(stderr);
+    if (inst_stats) ist.print_stats(stderr);
 }
 
 void Core::boot(){

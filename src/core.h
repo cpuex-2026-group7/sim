@@ -4,6 +4,7 @@
 #include "reg.h"
 #include "mem.h"
 #include "branch.h"
+#include "inst_stats.h"
 
 class Core {
     public:
@@ -13,7 +14,9 @@ class Core {
         FILE* trace;
         bool cache_stats = false;
         bool branch_stats = false;
+        bool inst_stats = false;
         BranchPredictor bp;
+        InstStats ist;
 
         // init
         Core(std::string &trace_path, std::string &in_path, std::string &out_path, DCache::Config cc = {});

@@ -56,6 +56,90 @@ BranchPredictor::Type Inst::branch_type() const {
     return T::None;
 }
 
+Uop Inst::uop() const {
+    switch (unit_type){
+        case UNIT_ALU:
+            switch (eff_type){
+                case EFF_NONE:
+                    if (imm_type == IMM_D){
+                        switch (op_id){
+                            case 0: return Uop::BEQ;
+                            case 1: return Uop::BNE;
+                            case 2: return Uop::BLT;
+                            case 3: return Uop::BGE;
+                        }
+                    }
+                    break;
+                case EFF_WI:
+                    if (imm_type == IMM_B && op_id == 0) return Uop::JAL;
+                    if (imm_type == IMM_C){
+                        switch (op_id){
+                            case 0: return Uop::JALR;
+                            case 1: return Uop::ADDI;
+                            case 2: return Uop::LOAD; // lw
+                            case 3: return Uop::SRA;
+                        }
+                    }
+                    if (imm_type == IMM_D){
+                        switch (op_id){
+                            case 0: return Uop::ADD;
+                            case 1: return Uop::SUB;
+                        }
+                    }
+                    break;
+                case EFF_WF:
+                    if (imm_type == IMM_C && op_id == 0) return Uop::LOAD; // flw
+                    break;
+                case EFF_MEM:
+                    if (imm_type == IMM_D){
+                        switch (op_id){
+                            case 0: return Uop::STORE; // sw
+                            case 1: return Uop::STORE; // fsw
+                        }
+                    }
+                    break;
+            }
+            break;
+        case UNIT_FPU:
+            switch (eff_type){
+                case EFF_NONE:
+                    if (imm_type == IMM_D){
+                        switch (op_id){
+                            case 0: return Uop::FBEQ;
+                            case 1: return Uop::FBNE;
+                            case 2: return Uop::FBLT;
+                            case 3: return Uop::FBGE;
+                        }
+                    }
+                    break;
+                case EFF_WI:
+                    if (imm_type == IMM_C && op_id == 0) return Uop::FTOI;
+                    break;
+                case EFF_WF:
+                    if (imm_type == IMM_A && op_id == 0) return Uop::FLI;
+                    if (imm_type == IMM_B && op_id == 0) return Uop::FLHI;
+                    if (imm_type == IMM_C){
+                        switch (op_id){
+                            case 0: return Uop::ITOF;
+                            case 1: return Uop::FCSIGN;
+                            case 2: return Uop::FSQRT;
+                        }
+                    }
+                    if (imm_type == IMM_D){
+                        switch (op_id){
+                            case 0: return Uop::FADD;
+                            case 1: return Uop::FSUB;
+                            case 2: return Uop::FMUL;
+                            case 3: return Uop::FDIV;
+                        }
+                    }
+                    break;
+            }
+            break;
+    }
+    return Uop::NONE; // nop, halt
+}
+
 bool Inst::exec(Reg &reg, Mem &mem){
     // execute instrutions
     bool jumped = false;
@@ -265,18 +349,6 @@ bool Inst::exec(Reg &reg, Mem &mem){
                                     break;
                             }
                             break;
-                        case IMM_D:
-                            switch (op_id){
-                                case 0: // feq rd, rs1(f), rs2(f)
-                                    /* rd = (rs1(f) == rs2(f)) */
-                                    reg.write_x(rd, to_float(reg.read_f(rs1)) == to_float(reg.read_f(rs2)));
-                                    break;
-                                case 1: // flt rd, rs1(f), rs2(f)
-                                    /* rd = (rs1(f) < rs2(f)) */
-                                    reg.write_x(rd, to_float(reg.read_f(rs1)) < to_float(reg.read_f(rs2)));
-                                    break;
-                            }
-                            break;
                     }
                     break;
                 case EFF_WF:
@@ -318,10 +390,6 @@ bool Inst::exec(Reg &reg, Mem &mem){
                                 case 2: // fsqrt rd(f), rs1(f)
                                     /* rd(f) = sqrt(rs1(f)) */
                                     reg.write_f(rd, to_uint32(std::sqrt(to_float(reg.read_f(rs1)))));
-                                    break;
-                                case 3: // fabs rd(f), rs1(f)
-                                    /* rd(f) = abs(rs1(f)) */
-                                    reg.write_f(rd, to_uint32(std::fabs(to_float(reg.read_f(rs1)))));
                                     break;
                             }
                             break;
